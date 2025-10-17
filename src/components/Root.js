@@ -10,6 +10,7 @@ import AddInvoice from "./AddInvoice";
 import UpdateBalanceSarsoo from "./UpdateBalanceSarsoo";
 import PaymentList from "./PaymentList";
 import AddPayment from "./AddPayment";
+import LedgerList from "./LedgerList";
 function Dashboard(){
   const user = localStorage.getItem("user");
   const userD = JSON.parse(user);
@@ -168,6 +169,13 @@ const handleAuth = async () => {
       </Link>
   </li>
 
+  <li className="nav-item">
+    <Link className="nav-link collapsed" to="/ledger-list">
+      <i className="bi bi-cash"></i>
+      <span>Ledger</span>
+      </Link>
+  </li>
+
 </ul>
 
 </aside>
@@ -182,6 +190,8 @@ const handleAuth = async () => {
       <Route path='/add-invoice' element={<AddInvoice />} />
       <Route path='/payment-list' element={<PaymentList/>} />
       <Route path='/add-payment' element={<AddPayment />} />
+      <Route path='/ledger-list' element={<LedgerList/>} />
+      {/* <Route path='/add-payment' element={<AddPayment />} /> */}
       <Route path='/update-balance-sarsoo/:id' element={<UpdateBalanceSarsoo/>} />
       <Route path ='*' element ={<main id="main" className="main"><h1 style={{textAlign:'center'}}>404 Error Not Found</h1></main>}/>
       {/* <Route path='/' element={<h1>Home</h1>} />
