@@ -11,6 +11,7 @@ import UpdateBalanceSarsoo from "./UpdateBalanceSarsoo";
 import PaymentList from "./PaymentList";
 import AddPayment from "./AddPayment";
 import LedgerList from "./LedgerList";
+import MerchantBalance from "./MerchantBalance";
 function Dashboard(){
   const user = localStorage.getItem("user");
   const userD = JSON.parse(user);
@@ -171,8 +172,15 @@ const handleAuth = async () => {
 
   <li className="nav-item">
     <Link className="nav-link collapsed" to="/ledger-list">
-      <i className="bi bi-cash"></i>
+      <i className="bi-list-columns-reverse"></i>
       <span>Ledger</span>
+      </Link>
+  </li>
+
+  <li className="nav-item">
+    <Link className="nav-link collapsed" to="/merchant-balance">
+      <i className="bi bi-cash-stack"></i>
+      <span>Merchant Balance</span>
       </Link>
   </li>
 
@@ -191,6 +199,7 @@ const handleAuth = async () => {
       <Route path='/payment-list' element={<PaymentList/>} />
       <Route path='/add-payment' element={<AddPayment />} />
       <Route path='/ledger-list' element={<LedgerList/>} />
+      <Route path='/merchant-balance' element={<MerchantBalance/>} />
       {/* <Route path='/add-payment' element={<AddPayment />} /> */}
       <Route path='/update-balance-sarsoo/:id' element={<UpdateBalanceSarsoo/>} />
       <Route path ='*' element ={<main id="main" className="main"><h1 style={{textAlign:'center'}}>404 Error Not Found</h1></main>}/>
