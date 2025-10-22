@@ -2,7 +2,9 @@ import React, { useEffect, useState } from "react";
 import {Link} from 'react-router-dom';
 import { pdf } from '@react-pdf/renderer';
 import { saveAs } from 'file-saver';
-import Pdfdocument from "./Pdfdocument";
+// import Pdfdocument from "./Pdfdocument";
+import PdfLedger from "./PdfLedger"; 
+
 // import Ledger from "../../../bod-back/models/Ledger";
 function LedgerList(){
     const [merchants,setMerchants]= useState([]);
@@ -44,10 +46,10 @@ function LedgerList(){
     },[]) // eslint-disable-line react-hooks/exhaustive-deps
 
     const handleBalance = async() =>{
-        // if(!selectedMerchant){
-        //     alert('Please Select Merchant');
-        //     return false;
-        // }
+        if(!selectedMerchant){
+            alert('Please Select Merchant');
+            return false;
+        }
         const response = await fetch(`http://localhost:5000/ledger?merchantId=${selectedMerchant}&oilType=${type}`, {
           method: 'GET',
           headers: {
@@ -98,38 +100,39 @@ function LedgerList(){
     //   }
     // };
     
-    const fetchAndGeneratePDF = async () => {
-      try {
-        if(!selectedMerchant){
-          alert('Please Select Merchant');
-          return false;
-      }
-        const response = await fetch('http://localhost:5000/merchant-balance',{
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'authorization': JSON.parse(token)
-          },
-          body: JSON.stringify({ merchantId: selectedMerchant}),
-            });
-        const data = await response.json();
-            console.log(data.data);
-        if (!Array.isArray(data.data)) {
-          throw new Error('Data format is incorrect');
-        }
-        var data1 = data.data;
-        let date = new Date().toLocaleDateString("en-GB");
-        console.log(data1[0].name);
-        // Create a PDF and trigger download
-        const doc = <Pdfdocument data={data.data} />;
-        const asPdf = pdf([]);
-        asPdf.updateContainer(doc);
-        const blob = await asPdf.toBlob();
-        saveAs(blob, data1[0].name+' '+date);
-      } catch (error) {
-        console.error('Error fetching data', error);
-      }
-    };
+
+const fetchAndGeneratePDF = async () => {
+  try {
+    if (!selectedMerchant) {
+      alert('Please Select Merchant');
+      return;
+    }
+    // use same API as search so PDF shows same ledger data
+    const response = await fetch(`http://localhost:5000/ledger?merchantId=${selectedMerchant}&oilType=${type}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'authorization': token,
+      },
+    });
+
+    const result = await response.json();
+    if (!result.success || !Array.isArray(result.ledger) || result.ledger.length === 0) {
+      alert("No data found for PDF");
+      return;
+    }
+
+    const doc = <PdfLedger data={result.ledger} />;
+    const asPdf = pdf([]);
+    asPdf.updateContainer(doc);
+    const blob = await asPdf.toBlob();
+    const date = new Date().toLocaleDateString("en-GB");
+    saveAs(blob, `Ledger_${selectedMerchant}_${date}.pdf`);
+  } catch (err) {
+    console.error("Error generating PDF:", err);
+  }
+};
+
     return(
     <main id="main" className="main">
         <div className="row">
@@ -146,7 +149,7 @@ function LedgerList(){
                   <label htmlFor="inputType" className="form-label">Type</label>
                   <select id="inputType" className="form-select" onChange={(e)=>{setType(e.target.value);}}>
                     <option value="">Select Type</option>
-                    <option value="Sarsoo">Sarsoo</option>
+                    <option value="Sarso">Sarso</option>
                     <option value="Pakwan">Pakwan</option>
                     <option value="Tilli">Tilli</option>
                   </select>
@@ -159,8 +162,8 @@ function LedgerList(){
         <br/>
         <div className="row">
         <div className="col-sm-4" style={{marginTop:'2em'}}>
-          {/* <Link to="/add-payment" type="button" className="btn btn-secondary rounded-pill">Add Entry</Link>
-          <button onClick={fetchAndGeneratePDF} type="button" className="btn btn-primary rounded-pill" style={{marginLeft:'2px'}}>Generate Pdf</button> */}
+          {/* <Link to="/add-payment" type="button" className="btn btn-secondary rounded-pill">Add Entry</Link>*/
+          <button onClick={fetchAndGeneratePDF} type="button" className="btn btn-primary rounded-pill" style={{marginLeft:'2px'}}>Generate Pdf</button> }
 
         </div>
         
@@ -186,6 +189,7 @@ const Table = ({ data, handleDelete }) => (
           <div className="card">
             <div className="card-body">
               <h5 className="card-title">Ledger</h5>
+              <h4 className="card-title">{data[0]?.Merchant?.name || ""}</h4>
 
               <table className="table table-bordered datatable">
                 <thead>
@@ -230,12 +234,14 @@ const Table = ({ data, handleDelete }) => (
   });
 
   // Step 2: Render grouped items in order
+  let counter = 0;
   return grouped.flatMap((group, groupIndex) => {
     const rows = [];
 
     const itemsToRender = group.invoice ? [group.invoice, ...group.payments] : group.payments;
 
     itemsToRender.forEach((item, index) => {
+      counter++;
       const debit = parseInt(item.debit) || 0;
       const credit = parseInt(item.credit) || 0;
 
@@ -245,7 +251,7 @@ const Table = ({ data, handleDelete }) => (
 
       rows.push(
         <tr key={`${groupIndex}-${index}`}>
-          <th scope="row">{rows.length + 1}</th>
+          <th scope="row">{counter}</th>
           <td>{formatDate(item?.Invoice?.date || item?.Payment?.date)}</td>
           <td>{item.description}</td>
           <td>{opening}</td>
