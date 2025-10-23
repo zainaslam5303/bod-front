@@ -12,10 +12,11 @@ import PaymentList from "./PaymentList";
 import AddPayment from "./AddPayment";
 import LedgerList from "./LedgerList";
 import MerchantBalance from "./MerchantBalance";
+import API_BASE_URL from "../config";
 function Dashboard(){
   const user = localStorage.getItem("user");
   const userD = JSON.parse(user);
-  console.log(userD);
+  // console.log(userD);
   // const token = localStorage.getItem("token");
   // console.log(token);
   const navigate = useNavigate();
@@ -31,7 +32,7 @@ const handleAuth = async () => {
   const token = localStorage.getItem("token");
   if (!token) return logout(); // no token → logout
 
-  const auth = await fetch('http://localhost:5000/auth/verify', {
+  const auth = await fetch(`${API_BASE_URL}/auth/verify`, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
+import API_BASE_URL from "../config";
 
 function AddInvoice() {
     const navigate = useNavigate(); 
@@ -48,7 +49,7 @@ function AddInvoice() {
         //   }
         // }
         
-        const response = await fetch('http://localhost:5000/invoice', {
+        const response = await fetch(`${API_BASE_URL}/invoice`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -69,7 +70,7 @@ function AddInvoice() {
     };
 
     const getMerchants = async () => {
-        const data = await fetch('http://localhost:5000/merchants', {
+        const data = await fetch(`${API_BASE_URL}/merchants`, {
             headers: {
                 'Content-Type': 'application/json',
                 'authorization': token,

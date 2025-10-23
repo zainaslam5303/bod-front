@@ -4,6 +4,7 @@ import { pdf } from '@react-pdf/renderer';
 import { saveAs } from 'file-saver';
 // import Pdfdocument from "./Pdfdocument";
 import PdfLedger from "./PdfLedger"; 
+import API_BASE_URL from "../config";
 
 // import Ledger from "../../../bod-back/models/Ledger";
 function LedgerList(){
@@ -15,7 +16,7 @@ function LedgerList(){
     const[type, setType] = useState('');
     const token = localStorage.getItem("token");
     const getMerchants = async() =>{
-        const data = await fetch('http://localhost:5000/merchants',{
+        const data = await fetch(`${API_BASE_URL}/merchants`,{
             headers: {
                 'Content-Type': 'application/json',
                 'authorization': token,
@@ -27,7 +28,7 @@ function LedgerList(){
         }
     }
         const getPaymentData = async() =>{
-          const data = await fetch('http://localhost:5000/payment',{
+          const data = await fetch(`${API_BASE_URL}/payment`,{
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -50,7 +51,7 @@ function LedgerList(){
             alert('Please Select Merchant');
             return false;
         }
-        const response = await fetch(`http://localhost:5000/ledger?merchantId=${selectedMerchant}&oilType=${type}`, {
+        const response = await fetch(`${API_BASE_URL}/ledger?merchantId=${selectedMerchant}&oilType=${type}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -108,7 +109,7 @@ const fetchAndGeneratePDF = async () => {
       return;
     }
     // use same API as search so PDF shows same ledger data
-    const response = await fetch(`http://localhost:5000/ledger?merchantId=${selectedMerchant}&oilType=${type}`, {
+    const response = await fetch(`${API_BASE_URL}/ledger?merchantId=${selectedMerchant}&oilType=${type}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',

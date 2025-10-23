@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
+import API_BASE_URL from "../config";
 
 function AddPayment() {
     const navigate = useNavigate(); 
@@ -52,7 +53,7 @@ function AddPayment() {
         //   }
         // }
         
-        const response = await fetch('http://localhost:5000/payment', {
+        const response = await fetch(`${API_BASE_URL}/payment`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -71,7 +72,7 @@ function AddPayment() {
     };
 
     const getMerchants = async () => {
-        const data = await fetch('http://localhost:5000/merchants', {
+        const data = await fetch(`${API_BASE_URL}/merchants`, {
             headers: {
                 'Content-Type': 'application/json',
                 'authorization': token,
@@ -103,7 +104,7 @@ function AddPayment() {
                     document.getElementById("inputPaymentType").value = "0";
                     return ;
                 }
-                const response = await fetch(`http://localhost:5000/invoice?merchantId=${merchant_id}&settleCheck=1&oilType=${oil_type}`, {
+                const response = await fetch(`${API_BASE_URL}/invoice?merchantId=${merchant_id}&settleCheck=1&oilType=${oil_type}`, {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",

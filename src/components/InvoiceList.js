@@ -3,6 +3,7 @@ import {Link} from 'react-router-dom';
 import { pdf } from '@react-pdf/renderer';
 import { saveAs } from 'file-saver';
 import Pdfdocument from "./Pdfdocument";
+import API_BASE_URL from "../config";
 function InvoiceList(){
     const [merchants,setMerchants]= useState([]);
     const [showTable, setShowTable] = useState(true);
@@ -11,7 +12,7 @@ function InvoiceList(){
     const[invoiceData,setInvoiceData] = useState([]);
     const token = localStorage.getItem("token");
     const getMerchants = async() =>{
-        const data = await fetch('http://localhost:5000/merchants',{
+        const data = await fetch(`${API_BASE_URL}/merchants`,{
             headers: {
                 'Content-Type': 'application/json',
                 'authorization': token,
@@ -23,7 +24,7 @@ function InvoiceList(){
         }
     }
         const getInvoiceData = async() =>{
-          const data = await fetch('http://localhost:5000/invoice',{
+          const data = await fetch(`${API_BASE_URL}/invoice`,{
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -46,7 +47,7 @@ function InvoiceList(){
         //     alert('Please Select Merchant');
         //     return false;
         // }
-        const response = await fetch(`http://localhost:5000/invoice?merchantId=${selectedMerchant}`, {
+        const response = await fetch(`${API_BASE_URL}/invoice?merchantId=${selectedMerchant}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -73,7 +74,7 @@ function InvoiceList(){
       try {
         const token = localStorage.getItem("token"); // or however you store it
     
-        const response = await fetch(`http://localhost:5000/invoice/${invoiceId}`, {
+        const response = await fetch(`${API_BASE_URL}/invoice/${invoiceId}`, {
           method: "DELETE",
           headers: {
             "Content-Type": "application/json",
@@ -102,7 +103,7 @@ function InvoiceList(){
           alert('Please Select Merchant');
           return false;
       }
-        const response = await fetch('http://localhost:5000/merchant-balance',{
+        const response = await fetch(`${API_BASE_URL}/merchant-balance`,{
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

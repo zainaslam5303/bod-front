@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate,useParams } from 'react-router-dom';
+import API_BASE_URL from "../config";
 
 
 function UpdateBalanceSarsoo() {
@@ -23,7 +24,7 @@ function UpdateBalanceSarsoo() {
     const balanceId = params.id;
 
     const getBalanceDetails = async() =>{
-        const response = await fetch('http://localhost:5000/get-balance-details-sarsoo/'+balanceId, {
+        const response = await fetch(`${API_BASE_URL}/get-balance-details-sarsoo/`+balanceId, {
   
   headers: {
     'Content-Type': 'application/json',
@@ -87,7 +88,7 @@ function UpdateBalanceSarsoo() {
           }
         }
         
-        const response = await fetch('http://localhost:5000/update-balance-details-sarsoo/'+balanceId, {
+        const response = await fetch(`${API_BASE_URL}/update-balance-details-sarsoo/`+balanceId, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',

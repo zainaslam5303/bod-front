@@ -1,5 +1,6 @@
 import React, { useState,useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import API_BASE_URL from "../config";
 
 function Login() {
   const [username, setUsername] = useState('');
@@ -24,7 +25,7 @@ function Login() {
         setMessage2('Please Enter Password');
         return false;
     }
-    const response = await fetch('http://localhost:5000/auth/login', {
+    const response = await fetch(`${API_BASE_URL}/auth/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

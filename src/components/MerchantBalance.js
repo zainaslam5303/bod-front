@@ -3,6 +3,7 @@ import {Link} from 'react-router-dom';
 import { pdf } from '@react-pdf/renderer';
 import { saveAs } from 'file-saver';
 import Pdfdocument from "./Pdfdocument";
+import API_BASE_URL from "../config";
 function MerchantBalance(){
     const [merchants,setMerchants]= useState([]);
     const [showTable, setShowTable] = useState(true);
@@ -12,7 +13,7 @@ function MerchantBalance(){
     const[type, setType] = useState('');
     const token = localStorage.getItem("token");
     const getMerchants = async() =>{
-        const data = await fetch('http://localhost:5000/merchants',{
+        const data = await fetch(`${API_BASE_URL}/merchants`,{
             headers: {
                 'Content-Type': 'application/json',
                 'authorization': token,
@@ -24,7 +25,7 @@ function MerchantBalance(){
         }
     }
         const getMerchantData = async() =>{
-          const data = await fetch('http://localhost:5000/invoice/merchant-balance',{
+          const data = await fetch(`${API_BASE_URL}/invoice/merchant-balance`,{
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -46,7 +47,7 @@ function MerchantBalance(){
         //     alert('Please Select Merchant');
         //     return false;
         // }
-        const response = await fetch(`http://localhost:5000/ledger?merchantId=${selectedMerchant}&oilType=${type}`, {
+        const response = await fetch(`${API_BASE_URL}/ledger?merchantId=${selectedMerchant}&oilType=${type}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -113,7 +114,7 @@ function MerchantBalance(){
         //   },
         //   body: JSON.stringify({ merchantId: selectedMerchant}),
         //     });
-        const response = await fetch(`http://localhost:5000/invoice?merchantId=${merchant_id}&settleCheck=1`, {
+        const response = await fetch(`${API_BASE_URL}/invoice?merchantId=${merchant_id}&settleCheck=1`, {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",

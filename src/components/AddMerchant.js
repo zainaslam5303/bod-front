@@ -1,6 +1,7 @@
 
 import React, { useState } from "react";
 import {Link, useNavigate} from 'react-router-dom';
+import API_BASE_URL from "../config";
 function AddMerchant(){
     const navigate = useNavigate(); 
     const token = localStorage.getItem("token");
@@ -14,7 +15,7 @@ function AddMerchant(){
             alert('Phone Number should be Number');
             return false;
         }
-        const response = await fetch('http://localhost:5000/merchants', {
+        const response = await fetch(`${API_BASE_URL}/merchants`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
