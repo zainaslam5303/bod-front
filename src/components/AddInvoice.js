@@ -160,7 +160,7 @@ function AddInvoice() {
                         </div>
                         <div className="col-6">
                             <label htmlFor="inputOtherCharges" className="form-label">Other Charges</label>
-                            <input type="number" className="form-control" id="inputOtherCharges" onChange={(e) => setOtherCharges(e.target.value)} />
+                            <input type="number" value={0} className="form-control" id="inputOtherCharges" onChange={(e) => setOtherCharges(e.target.value)} />
                         </div>
                         <div className="col-6">
                             <label htmlFor="inputTotal" className="form-label">Total</label>

@@ -13,6 +13,7 @@ import AddPayment from "./AddPayment";
 import LedgerList from "./LedgerList";
 import MerchantBalance from "./MerchantBalance";
 import API_BASE_URL from "../config";
+import ManualAdjustment from "./ManualAdjustment";
 function Dashboard(){
   const user = localStorage.getItem("user");
   const userD = JSON.parse(user);
@@ -185,6 +186,13 @@ const handleAuth = async () => {
       </Link>
   </li>
 
+  <li className="nav-item">
+    <Link className="nav-link collapsed" to="/manual-adjustment">
+      <i className="bi bi-sliders"></i>
+      <span>Manual Adjustment</span>
+      </Link>
+  </li>
+
 </ul>
 
 </aside>
@@ -201,6 +209,7 @@ const handleAuth = async () => {
       <Route path='/add-payment' element={<AddPayment />} />
       <Route path='/ledger-list' element={<LedgerList/>} />
       <Route path='/merchant-balance' element={<MerchantBalance/>} />
+      <Route path='/manual-adjustment' element={<ManualAdjustment/>} />
       {/* <Route path='/add-payment' element={<AddPayment />} /> */}
       <Route path='/update-balance-sarsoo/:id' element={<UpdateBalanceSarsoo/>} />
       <Route path ='*' element ={<main id="main" className="main"><h1 style={{textAlign:'center'}}>404 Error Not Found</h1></main>}/>
