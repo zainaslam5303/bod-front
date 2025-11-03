@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import {Link} from 'react-router-dom';
 import API_BASE_URL from "../config";
+import api from '../api';
 function Merchants(){
     const [merchants,setMerchants] = useState([]);
     const token = localStorage.getItem("token");
@@ -9,13 +10,8 @@ function Merchants(){
     },[])// eslint-disable-line react-hooks/exhaustive-deps
 
     const getMerchants = async() =>{
-        const data = await fetch(`${API_BASE_URL}/merchants`,{
-            headers: {
-                'Content-Type': 'application/json',
-                'authorization': token,
-              }
-        });
-        let result = await data.json();
+        const data = await api.get('/merchants');
+        let result =  data.data;
         if(result.success){
             setMerchants(result.merchants);
         }
@@ -23,17 +19,11 @@ function Merchants(){
 
     const deleteMerchant = async(id)=>{
       if(window.confirm('Are you sure you want to delete it?')){
-      const data = await fetch(`${API_BASE_URL}/merchants/`+id,{
-            headers: {
-                'Content-Type': 'application/json',
-                'authorization': token,
-              },
-              method: 'delete',
-        });
-        let result = await data.json();
+      const data = api.delete(`${API_BASE_URL}/merchants/`+id);
+        let result = await data.data;
         if(result.success){
             alert(result.message);
-                     getMerchants();
+            getMerchants();
         }else{
           alert(result.message);
         }

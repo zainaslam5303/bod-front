@@ -128,7 +128,7 @@ const fetchAndGeneratePDF = async () => {
     asPdf.updateContainer(doc);
     const blob = await asPdf.toBlob();
     const date = new Date().toLocaleDateString("en-GB");
-    saveAs(blob, `Ledger_${selectedMerchant}_${date}.pdf`);
+    saveAs(blob, `Ledger_${result.ledger[0]?.Merchant?.name}_${result.ledger[0]?.oil_type}_${date}.pdf`);
   } catch (err) {
     console.error("Error generating PDF:", err);
   }

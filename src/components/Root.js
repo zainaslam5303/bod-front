@@ -55,6 +55,38 @@ const handleAuth = async () => {
     handleAuth();
     
 },[])// eslint-disable-line react-hooks/exhaustive-deps
+useEffect(() => {
+  // 1️⃣ Close sidebar when clicking outside (only on mobile)
+  const handleClickOutside = (e) => {
+    const sidebar = document.querySelector("#sidebar");
+    const toggleBtn = document.querySelector(".toggle-sidebar-btn");
+
+    if (window.innerWidth <= 991 && document.body.classList.contains("toggle-sidebar")) {
+      // if clicked outside sidebar and toggle button
+      if (!sidebar.contains(e.target) && !toggleBtn.contains(e.target)) {
+        document.body.classList.remove("toggle-sidebar");
+      }
+    }
+  };
+
+  // 2️⃣ Close sidebar when any sidebar link is clicked (only on mobile)
+  const handleSidebarLinkClick = () => {
+    if (window.innerWidth <= 991 && document.body.classList.contains("toggle-sidebar")) {
+      document.body.classList.remove("toggle-sidebar");
+    }
+  };
+
+  // attach event listeners
+  document.addEventListener("click", handleClickOutside);
+  const links = document.querySelectorAll("#sidebar a");
+  links.forEach(link => link.addEventListener("click", handleSidebarLinkClick));
+
+  // cleanup on unmount
+  return () => {
+    document.removeEventListener("click", handleClickOutside);
+    links.forEach(link => link.removeEventListener("click", handleSidebarLinkClick));
+  };
+}, []);
 
 
   return(
@@ -66,7 +98,7 @@ const handleAuth = async () => {
         <header id="header" className="header fixed-top d-flex align-items-center">
 
 <div className="d-flex align-items-center justify-content-between">
-  <a href="index.html" className="logo d-flex align-items-center">
+  <a href="/" className="logo d-flex align-items-center">
     <img src="assets/img/logo.png" alt="" />
     <span className="d-none d-lg-block">BOD</span>
   </a>
@@ -88,7 +120,7 @@ const handleAuth = async () => {
 
       <a href="#23" className="nav-link nav-profile d-flex align-items-center pe-0" data-bs-toggle="dropdown">
         {/* <img src="assets/img/profile-img.jpg" alt="Profile" className="rounded-circle"/> */}
-        <span className="d-none d-md-block dropdown-toggle ps-2">{userD.first_name} {userD.last_name}</span>
+        <span className="dropdown-toggle ps-2">{userD.first_name} {userD.last_name}</span>
       </a>
 
       <ul className="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile">

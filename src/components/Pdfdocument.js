@@ -124,7 +124,7 @@ const Pdfdocument = ({ data }) => {
                   <Text style={[styles.cell, { flex: 0.8 }]}>
                     {inv.unsettled_amount.toLocaleString()}
                   </Text>
-                  <Text style={[styles.cell, { flex: 0.8 }]}>{inv.date}</Text>
+                  <Text style={[styles.cell, { flex: 0.8 }]}>{formatDate(inv.date)}</Text>
                 </View>
               ))}
 
@@ -159,5 +159,11 @@ const Pdfdocument = ({ data }) => {
     </Document>
   );
 };
-
+function formatDate(dateString) {
+  if (!dateString) return "";
+  const date = new Date(dateString);
+  return `${String(date.getDate()).padStart(2, "0")}-${String(
+    date.getMonth() + 1
+  ).padStart(2, "0")}-${date.getFullYear()}`;
+}
 export default Pdfdocument;

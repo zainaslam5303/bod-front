@@ -236,7 +236,7 @@ function AddPayment() {
                             <select id="inputInvoice" className="form-select" onChange={handleInvoiceChange}>
                                 <option defaultValue value="0">Choose...</option>
                                 {invoices.map((item, index) =>
-                                    <option key={index} value={item.id}>{formatDate(item.created_date)+' '+item.description}</option>
+                                    <option key={index} value={item.id}>{formatDate(item.date)+' '+item.description}</option>
                                 )}
                                 {/* <option value="general">General</option>
                                 <option value="invoice">Invoice</option> */}
