@@ -69,10 +69,10 @@ function Login() {
                     {/* <p className="text-center small">Enter your username & password to login</p> */}
                   </div>
 
-                  <form className="row g-3 needs-validation" onSubmit={handleLogin} novalidate>
+                  <form className="row g-3 needs-validation" onSubmit={handleLogin} noValidate>
 
                     <div className="col-12">
-                      <label for="yourUsername" className="form-label">Username</label>
+                      <label htmlFor="yourUsername" className="form-label">Username</label>
                       <div className="input-group has-validation">
                         {/* <span className="input-group-text" id="inputGroupPrepend">@</span> */}
                         <input type="text" name="username" className="form-control" id="yourUsername" placeholder='Enter Username' value={username} onChange={(e) => setUsername(e.target.value)} required />
@@ -81,7 +81,7 @@ function Login() {
                     </div>
 
                     <div className="col-12">
-                      <label for="yourPassword" className="form-label">Password</label>
+                      <label htmlFor="yourPassword" className="form-label">Password</label>
                       <input type="password" name="password" className="form-control" id="yourPassword" placeholder='Enter Password' value={password} onChange={(e) => setPassword(e.target.value)} required />
                       <div className="invalid-feedback" style={{display:'block'}} >{message2}</div>
                     </div>
@@ -89,7 +89,7 @@ function Login() {
                     <div className="col-12">
                       <div className="form-check">
                         <input className="form-check-input" type="checkbox" name="remember" value="true" id="rememberMe" />
-                        <label className="form-check-label" for="rememberMe">Remember me</label>
+                        <label className="form-check-label" htmlFor="rememberMe">Remember me</label>
                       </div>
                     </div>
                     <div className="col-12">

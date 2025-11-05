@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Login from "./Login";
 import {Routes,Route,useNavigate, Link} from 'react-router-dom';
 // import PrivateComponent from "./PrivateComponent";
@@ -21,6 +21,8 @@ function Dashboard(){
   // const token = localStorage.getItem("token");
   // console.log(token);
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
+  // const [isAuthenticated, setIsAuthenticated] = useState(false);
   const handleBar = () =>{
     const body = document.body;
     body.classList.toggle('toggle-sidebar');
@@ -30,8 +32,11 @@ function Dashboard(){
     navigate('/login');
 }
 const handleAuth = async () => {
+  setLoading(true);
   const token = localStorage.getItem("token");
-  if (!token) return logout(); // no token → logout
+  if (!token) {
+    setLoading(false);
+    return logout();} // no token → logout
 
   const auth = await fetch(`${API_BASE_URL}/auth/verify`, {
     method: 'GET',
@@ -45,10 +50,13 @@ const handleAuth = async () => {
   // console.log("VERIFY RESPONSE =>", data);
 
   if (!data.success) {
+    setLoading(false);
     logout(); // token invalid → logout
   } else {
+    setLoading(false);
     console.log("User verified ✅", data.user);
   }
+  
 }
 
   useEffect(()=>{
@@ -88,7 +96,29 @@ useEffect(() => {
   };
 }, []);
 
+if (loading) {
+  return (
+    <div style={{ textAlign: "center", marginTop: "20%" }}>
+      <h2
+        style={{
+          animation: "fadeInOut 1.5s ease-in-out infinite",
+        }}
+      >
+        Checking session...
+      </h2>
 
+      <style>
+        {`
+          @keyframes fadeInOut {
+            0% { opacity: 0; }
+            50% { opacity: 1; }
+            100% { opacity: 0; }
+          }
+        `}
+      </style>
+    </div>
+  );
+}
   return(
     
     
