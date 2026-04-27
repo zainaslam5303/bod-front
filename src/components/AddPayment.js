@@ -13,34 +13,42 @@ function AddPayment() {
     // const [rate, setRate] = useState(0);
     // const [other_charges, setOtherCharges] = useState(0);
     const [amount, setAmount] = useState(0);
+    const [words, setWords] = useState("Zero");
     const [description, setDescription] = useState('');
     const [payment_type, setPaymentType] = useState('');
     const [invoice_id, setInvoiceId] = useState(0);
     const [invoices, setInvoices] = useState([]);
     const [invoice_amount, setInvoiceAmount] = useState(0);
     const [date, setDate] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
     // const [showFields, setShowFields] = useState(true); // State to control visibility of weight and quantity fields
     const token = localStorage.getItem("token");
 
     const handlePayment = async () => {
+        setIsSubmitting(true);
         if(!merchant_id){
           alert("Please Select Merchant");
+          setIsSubmitting(false);
           return false;
         }
         if(!oil_type){
           alert("Please Select Type");
+          setIsSubmitting(false);
           return false;
         }
         if(!description){
           alert("Please Enter Description");
+          setIsSubmitting(false);
           return false;
         }
         if(!payment_type){
             alert("Please Select Payment Type");
+            setIsSubmitting(false);
           return false;
         }
         if(!date){
             alert("Please Select Date");
+            setIsSubmitting(false);
             return false;
         }
         // if(option === 2){
@@ -67,6 +75,7 @@ function AddPayment() {
           navigate('/payment-list');
         }else{
           alert(data.message);
+          setIsSubmitting(false);
           return false;
         }
     };
@@ -143,6 +152,7 @@ function AddPayment() {
             if (selectedInvoice) {
                 setInvoiceAmount(selectedInvoice.unsettled_amount); 
                 setAmount(selectedInvoice.unsettled_amount);
+                setWords(numberToWords(parseInt(selectedInvoice.unsettled_amount)));
             }
         }else{
             setInvoiceAmount(0);
@@ -248,11 +258,15 @@ function AddPayment() {
                         </div>
                         <div className="col-6">
                             <label htmlFor="inputAmount" className="form-label">Amount</label>
-                            <input type="number" value={amount} className="form-control" id="inputAmount" onChange={(e) => setAmount(e.target.value)} />
+                            <input type="number" value={amount} className="form-control" id="inputAmount" onChange={(e) => {setAmount(e.target.value);if (e.target.value) {  setWords(numberToWords(parseInt(e.target.value)));} else {  setWords("");}}} />
+                        </div>
+                        <div className="col-6">
+                            <label htmlFor="inputWord" className="form-label">Amount in Words</label>
+                            <input type="text" value={words} className="form-control" id="inputWord" readOnly disabled/>
                         </div>
 
                         <div className="text-center">
-                            <button type="button" className="btn btn-primary" onClick={handlePayment}>Submit</button>
+                            <button type="button" className="btn btn-primary" onClick={handlePayment} disabled={isSubmitting}>{isSubmitting ? "Submitting..." : "Submit"}</button>
                             <button type="reset" className="btn btn-secondary" style={{ marginLeft: '2px' }}>Reset</button>
                         </div>
                     </form>
@@ -269,4 +283,56 @@ function formatDate(dateString) {
     const day = String(date.getDate()).padStart(2, '0');
     return `${day}-${month}-${year}`; // Example format: YYYY-MM-DD
 }
+function numberToWords(num) {
+    const ones = [
+      "", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine",
+      "Ten", "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen",
+      "Sixteen", "Seventeen", "Eighteen", "Nineteen"
+    ];
+  
+    const tens = [
+      "", "", "Twenty", "Thirty", "Forty", "Fifty",
+      "Sixty", "Seventy", "Eighty", "Ninety"
+    ];
+  
+    const formatTwoDigits = (n) => {
+      if (n < 20) return ones[n];
+      return tens[Math.floor(n / 10)] + (n % 10 ? " " + ones[n % 10] : "");
+    };
+  
+    if (num === 0) return "Zero";
+  
+    let words = "";
+  
+    const crore = Math.floor(num / 10000000);
+    if (crore > 0) {
+      words += numberToWords(crore) + " Crore ";
+      num %= 10000000;
+    }
+  
+    const lakh = Math.floor(num / 100000);
+    if (lakh > 0) {
+      words += numberToWords(lakh) + " Lakh ";
+      num %= 100000;
+    }
+  
+    const thousand = Math.floor(num / 1000);
+    if (thousand > 0) {
+      words += numberToWords(thousand) + " Thousand ";
+      num %= 1000;
+    }
+  
+    const hundred = Math.floor(num / 100);
+    if (hundred > 0) {
+      words += numberToWords(hundred) + " Hundred ";
+      num %= 100;
+    }
+  
+    if (num > 0) {
+      words += (words !== "" ? "and " : "") + formatTwoDigits(num);
+    }
+  
+    return words.trim();
+  }
+  
 export default AddPayment;

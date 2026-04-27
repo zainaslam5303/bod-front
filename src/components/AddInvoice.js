@@ -15,28 +15,35 @@ function AddInvoice() {
     const [total_amount, setTotal] = useState((rate * weight));
     const [description, setDescription] = useState('');
     const [date, setDate] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
     // const [showFields, setShowFields] = useState(true); // State to control visibility of weight and quantity fields
     const token = localStorage.getItem("token");
 
     const handleInvoice = async () => {
+        setIsSubmitting(true);
         if(!merchant_id){
           alert("Please Select Merchant");
+          setIsSubmitting(false);
           return false;
         }
         if(!oil_type){
           alert("Please Select Type");
+          setIsSubmitting(false);
           return false;
         }
         if(!rate){
           alert("Please Enter Rate");
+          setIsSubmitting(false);
           return false;
         }
         if(!description){
           alert("Please Enter Description");
+          setIsSubmitting(false);
           return false;
         }
         if(!date){
             alert("Please Enter Date");
+            setIsSubmitting(false);
             return false;
         }
         // if(option === 2){
@@ -65,6 +72,7 @@ function AddInvoice() {
         }else{
           console.log(data);
           alert(data.message);
+          setIsSubmitting(false);
           return false;
         }
     };
@@ -168,7 +176,7 @@ function AddInvoice() {
                         </div>
 
                         <div className="text-center">
-                            <button type="button" className="btn btn-primary" onClick={handleInvoice}>Submit</button>
+                            <button type="button" className="btn btn-primary" onClick={handleInvoice} disabled={isSubmitting}>{isSubmitting ? "Submitting..." : "Submit"}</button>
                             <button type="reset" className="btn btn-secondary" style={{ marginLeft: '2px' }}>Reset</button>
                         </div>
                     </form>

@@ -138,7 +138,7 @@ function InvoiceList(){
         <div className="row">
         <div className="col-sm-4" style={{marginTop:'2em'}}>
           <Link to="/add-invoice" type="button" className="btn btn-secondary rounded-pill">Add Entry</Link>
-          <button onClick={fetchAndGeneratePDF} type="button" className="btn btn-primary rounded-pill" style={{marginLeft:'2px'}}>Generate Pdf</button>
+          {/* <button onClick={fetchAndGeneratePDF} type="button" className="btn btn-primary rounded-pill" style={{marginLeft:'2px'}}>Generate Pdf</button> */}
 
         </div>
         
