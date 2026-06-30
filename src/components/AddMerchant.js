@@ -7,6 +7,7 @@ function AddMerchant(){
     const token = localStorage.getItem("token");
     const [name, setName] = useState('');
     const [mobile_number, setmobile_number] = useState('');
+    const [status, setStatus] = useState(1);
     const handleMerchant = async() =>{
         if(!name && !mobile_number){
             alert("Name can't be empty");
@@ -62,6 +63,21 @@ function AddMerchant(){
                 <div className="col-12">
                   <label htmlFor="inputNanme4" className="form-label">Name</label>
                   <input type="text" className="form-control" value={name} onChange={(e) => setName(e.target.value)} id="inputNanme4" required/>
+                </div>
+                <div className="col-12">
+                  <label htmlFor="inputStatus" className="form-label">
+                    Status
+                  </label>
+
+                  <select
+                    id="inputStatus"
+                    className="form-select"
+                    value={status}
+                    onChange={(e) => setStatus(Number(e.target.value))}
+                  >
+                    <option value={1}>Active</option>
+                    <option value={0}>Inactive</option>
+                  </select>
                 </div>
                 <div className="col-12">
                   <label htmlFor="inputMob" className="form-label">Mobile Number</label>

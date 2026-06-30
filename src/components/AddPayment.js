@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
 import API_BASE_URL from "../config";
+import Select from "react-select";
 
 function AddPayment() {
     const navigate = useNavigate(); 
@@ -23,7 +24,13 @@ function AddPayment() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     // const [showFields, setShowFields] = useState(true); // State to control visibility of weight and quantity fields
     const token = localStorage.getItem("token");
-
+    const merchantOptions = [
+        { value: 0, label: "Choose..." },
+        ...merchants.map(item => ({
+            value: item.id,
+            label: item.name,
+        }))
+    ];
     const handlePayment = async () => {
         setIsSubmitting(true);
         if(!merchant_id){
@@ -193,13 +200,17 @@ function AddPayment() {
 
                     <form className="row g-3">
                         <div className="col-6">
-                            <label htmlFor="Merchant" className="form-label">Merchant</label>
-                            <select id="inputMerchant" className="form-select" onChange={(e) => setMerchantId(e.target.value)}>
-                                <option defaultValue value="0">Choose...</option>
-                                {merchants.map((item, index) =>
-                                    <option key={index} value={item.id}>{item.name}</option>
-                                )}
-                            </select>
+                            <label htmlFor="Merchant" className="form-label">
+                                Merchant
+                            </label>
+
+                            <Select
+                                options={merchantOptions}
+                                placeholder="Choose..."
+                                onChange={(selectedOption) =>
+                                setMerchantId(selectedOption?.value || 0)
+                                }
+                            />
                         </div>
                         <div class="col-6">
                             <label for="inputDate" className="form-label">Date</label>

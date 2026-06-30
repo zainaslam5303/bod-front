@@ -10,7 +10,7 @@ function Merchants(){
     },[])// eslint-disable-line react-hooks/exhaustive-deps
 
     const getMerchants = async() =>{
-        const data = await api.get('/merchants');
+        const data = await api.get('/merchants/merchants');
         let result =  data.data;
         if(result.success){
             setMerchants(result.merchants);
@@ -67,6 +67,7 @@ function Merchants(){
                     <th scope="col">#</th>
                     <th scope="col">Name</th>
                     <th scope="col">Mobile Number</th>
+                    <th scope="col">Status</th>
                     <th scope="col">Created Date</th>
                     <th scope="col" style={{textAlign:'center'}}>Action</th>
                   </tr>
@@ -78,6 +79,7 @@ function Merchants(){
                     <th scope="row">{index+1}</th>
                     <td>{item.name}</td>
                     <td>{item.mobile_number}</td>
+                    <td>{item.status === 1 ? "Active" : "Inactive"}</td>
                     <td>{formatDate(item.created_date)}</td>
                     <td style={{textAlign:'center'}}><Link to={"/merchant/"+item.id} type="button" className="btn btn-success rounded-pill btn-sm" style={{fontSize:'10px'}}>Update</Link><Link onClick={()=>deleteMerchant(item.id)} to="/merchants" type="button" className="btn btn-danger rounded-pill btn-sm" style={{fontSize:'10px',marginLeft:'2px'}}>Delete</Link> </td>
                   </tr>

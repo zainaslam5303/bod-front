@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
 import API_BASE_URL from "../config";
+import Select from "react-select";
 
 function AddInvoice() {
     const navigate = useNavigate(); 
@@ -89,7 +90,10 @@ function AddInvoice() {
             setMerchants(result.merchants);
         }
     };
-
+    const merchantOptions = merchants.map(item => ({
+        value: item.id,
+        label: item.name,
+    }));
     useEffect(() => {
         getMerchants();
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -122,12 +126,13 @@ function AddInvoice() {
                     <form className="row g-3">
                         <div className="col-6">
                             <label htmlFor="Merchant" className="form-label">Merchant</label>
-                            <select id="inputState" className="form-select" onChange={(e) => setMerchantId(e.target.value)}>
-                                <option defaultValue>Choose...</option>
-                                {merchants.map((item, index) =>
-                                    <option key={index} value={item.id}>{item.name}</option>
-                                )}
-                            </select>
+                            <Select
+                                options={merchantOptions}
+                                placeholder="Choose Merchant..."
+                                onChange={(selectedOption) =>
+                                    setMerchantId(selectedOption?.value)
+                                }
+                            />
                         </div>
                         <div className="col-6">
                             <label htmlFor="OilType" className="form-label">Type</label>

@@ -4,96 +4,90 @@ import { pdf } from '@react-pdf/renderer';
 import { saveAs } from 'file-saver';
 import Pdfdocument from "./Pdfdocument";
 import API_BASE_URL from "../config";
+import api from "../api";
 function PaymentList(){
     const [merchants,setMerchants]= useState([]);
     const [showTable, setShowTable] = useState(true);
     const[selectedMerchant,setSelectedMerchant] = useState('');
-    const[merchantData,setMerchantData] = useState([]);
     const[paymentData,setPaymentData] = useState([]);
+    const [type, setType] = useState("");
+    const [search, setSearch] = useState("");
+    const [page, setPage] = useState(1);
+    const [limit, setLimit] = useState(25);
+    const [pagination, setPagination] = useState({ page: 1, limit: 25, totalItems: 0, totalPages: 1 });
+    const [loading, setLoading] = useState(false);
+    const [showSettlementsModal, setShowSettlementsModal] = useState(false);
+    const [settlements, setSettlements] = useState([]);
+    const [loadingSettlements, setLoadingSettlements] = useState(false);
     const token = localStorage.getItem("token");
     const getMerchants = async() =>{
-        const data = await fetch(`${API_BASE_URL}/merchants`,{
-            headers: {
-                'Content-Type': 'application/json',
-                'authorization': token,
-              }
-        });
-        let result = await data.json();
+        const data = await api.get(`${API_BASE_URL}/merchants`);
+        let result = data.data;
         if(result.success){
             setMerchants(result.merchants);
         }
     }
-        const getPaymentData = async() =>{
-          const data = await fetch(`${API_BASE_URL}/payment`,{
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'authorization': token,
-              }
-          });
-          let result = await data.json();
-          if(result.success){
-            // console.log(result.payments);
-              setPaymentData(result.payments);
-          }
+    const getPaymentData = async(overrides = {}) =>{
+      try {
+        setLoading(true);
+        const params = {
+          page: overrides.page ?? page,
+          limit: overrides.limit ?? limit,
+          search: overrides.search ?? search,
+        };
+        const merchantId = overrides.merchantId ?? selectedMerchant;
+        const oilType = overrides.oilType ?? type;
+        if (merchantId) params.merchantId = merchantId;
+        if (oilType) params.oilType = oilType;
+
+        const data = await api.get(`${API_BASE_URL}/payment`, { params });
+        const result = data.data;
+        if(result.success){
+            setPaymentData(result.payments || []);
+            if (result.pagination) {
+              setPagination(result.pagination);
+            }
+            setShowTable(true);
+        } else {
+          setPaymentData([]);
+          setPagination((prev) => ({ ...prev, totalItems: 0, totalPages: 1 }));
         }
+      } finally {
+        setLoading(false);
+      }
+    }
     useEffect(()=>{
         getMerchants();
-        getPaymentData();
     },[]) // eslint-disable-line react-hooks/exhaustive-deps
 
+    useEffect(() => {
+      const timeout = setTimeout(() => {
+        getPaymentData();
+      }, 350);
+      return () => clearTimeout(timeout);
+    }, [page, limit, search, selectedMerchant, type]); // eslint-disable-line react-hooks/exhaustive-deps
+
     const handleBalance = async() =>{
-        // if(!selectedMerchant){
-        //     alert('Please Select Merchant');
-        //     return false;
-        // }
-        const response = await fetch(`${API_BASE_URL}/payment?merchantId=${selectedMerchant}`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            'authorization': token,
-          },
-        });
-
-        const result = await response.json();
-        if(result.success){
-            if(result.payments.length > 0){
-                setPaymentData(result.payments);
-                // setShowTable(true);
-            }
-            else{
-                alert("No Data Found");
-                // setShowTable(false);
-            }
-
-        }
+      setPage(1);
+      await getPaymentData({ page: 1 });
     };
-    const handleDelete = async (paymentId) => {
-      if (!window.confirm("Are you sure you want to delete this payment?")) return;
-    
+
+    const handleViewSettlements = async (paymentId) => {
       try {
-        const token = localStorage.getItem("token"); // or however you store it
-    
-        const response = await fetch(`${API_BASE_URL}/payment/${paymentId}`, {
-          method: "DELETE",
-          headers: {
-            "Content-Type": "application/json",
-            authorization: token,
-          },
-        });
-    
-        const data = await response.json();
-    
-        if (data.success) {
-          alert("Payment deleted successfully!");
-          // Optionally, refresh your list:
-          getPaymentData();
+        setLoadingSettlements(true);
+        const response = await api.get(`${API_BASE_URL}/payment/${paymentId}/settlements`);
+        const result = response.data;
+        if (result.success) {
+          setSettlements(result.settlements || []);
+          setShowSettlementsModal(true);
         } else {
-          alert("Failed to delete payment: " + data.message);
+          alert(result.message || "Failed to load settlements");
         }
       } catch (error) {
-        console.error("Error deleting payment:", error);
-        alert("Something went wrong!");
+        console.error("View settlements error:", error);
+        alert("Something went wrong while loading settlements");
+      } finally {
+        setLoadingSettlements(false);
       }
     };
     
@@ -147,6 +141,62 @@ function PaymentList(){
                 
         </div>
         <br/> */}
+        <div className="row g-3">
+        <div className="col-md-3">
+          <label htmlFor="paymentMerchant" className="form-label">Merchant Name</label>
+          <select
+            id="paymentMerchant"
+            className="form-select"
+            value={selectedMerchant}
+            onChange={(e)=>{ setSelectedMerchant(e.target.value); setPage(1); }}
+          >
+            <option value="">All Merchants</option>
+            {merchants.map((item,index)=>
+              <option key={index} value={item.id}>{item.name}</option>
+            )}
+          </select>
+        </div>
+        <div className="col-md-2">
+          <label htmlFor="paymentType" className="form-label">Type</label>
+          <select
+            id="paymentType"
+            className="form-select"
+            value={type}
+            onChange={(e)=>{ setType(e.target.value); setPage(1); }}
+          >
+            <option value="">All Types</option>
+            <option value="Sarso">Sarso</option>
+            <option value="Pakwan">Pakwan</option>
+            <option value="Tilli">Tilli</option>
+          </select>
+        </div>
+        <div className="col-md-4">
+          <label htmlFor="paymentSearch" className="form-label">Search</label>
+          <input
+            id="paymentSearch"
+            type="text"
+            className="form-control"
+            placeholder="Merchant, type, description..."
+            value={search}
+            onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+          />
+        </div>
+        <div className="col-md-3 d-flex align-items-end gap-2">
+          <button type="button" className="btn btn-primary rounded-pill" onClick={handleBalance}>Search</button>
+          <button
+            type="button"
+            className="btn btn-outline-secondary rounded-pill"
+            onClick={() => {
+              setSelectedMerchant("");
+              setType("");
+              setSearch("");
+              setPage(1);
+            }}
+          >
+            Reset
+          </button>
+        </div>
+        </div>
         <div className="row">
         <div className="col-sm-4" style={{marginTop:'2em'}}>
           <Link to="/add-payment" type="button" className="btn btn-secondary rounded-pill">Add Entry</Link>
@@ -157,7 +207,85 @@ function PaymentList(){
         </div>
         <br />
         
-        {showTable && <Table data={paymentData} handleDelete = {handleDelete} />}
+        {showTable && (
+          <Table
+            data={paymentData}
+            page={pagination.page || page}
+            limit={pagination.limit || limit}
+            totalItems={pagination.totalItems || 0}
+            totalPages={pagination.totalPages || 1}
+            loading={loading}
+            onViewSettlements={handleViewSettlements}
+            onPageChange={setPage}
+            onLimitChange={(newLimit) => {
+              setLimit(newLimit);
+              setPage(1);
+            }}
+          />
+        )}
+
+        {/* Settlements Modal */}
+        {showSettlementsModal && (
+          <>
+            <div 
+              className="modal-backdrop fade show" 
+              style={{ animation: 'fadeIn 0.3s ease' }}
+              onClick={() => setShowSettlementsModal(false)}
+            />
+            <div className="modal fade show d-block" tabIndex="-1">
+              <div className="modal-dialog modal-dialog-centered modal-lg">
+                <div className="modal-content" style={{ animation: 'slideIn 0.3s ease' }}>
+                  <div className="modal-header">
+                    <h5 className="modal-title">Payment Settlements</h5>
+                    <button type="button" className="btn-close" onClick={() => setShowSettlementsModal(false)}></button>
+                  </div>
+                  <div className="modal-body">
+                    {loadingSettlements ? (
+                      <div className="text-center py-4">
+                        <div className="spinner-border text-primary" role="status">
+                          <span className="visually-hidden">Loading...</span>
+                        </div>
+                      </div>
+                    ) : settlements.length === 0 ? (
+                      <div className="text-center py-4 text-muted">
+                        <i className="bi bi-inbox" style={{ fontSize: '2rem', display: 'block', marginBottom: '0.5rem' }}></i>
+                        No settlements found
+                      </div>
+                    ) : (
+                      <div className="table-responsive">
+                        <table className="table table-hover table-striped">
+                          <thead className="table-light">
+                            <tr>
+                              <th>#</th>
+                              <th>Invoice ID</th>
+                              <th>Payment ID</th>
+                              <th>Settled Amount</th>
+                              <th>Date</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {settlements.map((settlement, index) => (
+                              <tr key={index} style={{ animation: `fadeInRow 0.3s ease ${index * 0.05}s both` }}>
+                                <td>{index + 1}</td>
+                                <td>{settlement.invoice_id || '-'}</td>
+                                <td>{settlement.payment_id}</td>
+                                <td className="text-success fw-bold">{settlement.settled_amount?.toLocaleString()}</td>
+                                <td>{settlement.created_date ? formatDate(settlement.created_date) : '-'}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+                  </div>
+                  <div className="modal-footer">
+                    <button type="button" className="btn btn-secondary" onClick={() => setShowSettlementsModal(false)}>Close</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </>
+        )}
     </main>
 
 
@@ -165,91 +293,17 @@ function PaymentList(){
     );
     
 }
-const Table = ({ data, handleDelete }) => {
-  useEffect(() => {
-    // Initialize only when data is available and table exists
-    const tableEl = document.querySelector(".datatable");
-    if (!tableEl || data.length === 0) return;
-  
-    // Destroy previous datatable safely (if exists)
-    try {
-      if (tableEl.dataTable) {
-        tableEl.dataTable.destroy();
-        tableEl.dataTable = null;
-      }
-    } catch (err) {
-      console.warn("DataTable destroy failed:", err);
-    }
-  
-    // Initialize new datatable
-    let newTable = null;
-    const typeFilter = document.querySelector("#typeFilter");
-    const merchantFilter = document.querySelector("#merchantFilter");
-  
-    try {
-      newTable = new window.simpleDatatables.DataTable(tableEl, {
-        perPage: 25,
-        perPageSelect: [10, 25, 50, 100, 500, 1000],
-      });
-      tableEl.dataTable = newTable;
-  
-      // guard: if filters not present, skip wiring
-      if (typeFilter && merchantFilter) {
-        // handler reference so we can remove it later
-        const applyFilters = () => {
-          const typeValue = (typeFilter.value || "").toLowerCase();
-          const merchantValue = (merchantFilter.value || "").toLowerCase();
-  
-          // Get rendered rows from tbody
-          const rows = tableEl.tBodies[0].rows; // HTMLCollection
-          for (let i = 0; i < rows.length; i++) {
-            const row = rows[i];
-            // cells: adjust indexes if your columns change
-            const type = (row.cells[2]?.textContent || "").toLowerCase();
-            const merchant = (row.cells[3]?.textContent || "").toLowerCase();
-  
-            const matchesType = !typeValue || type.includes(typeValue);
-            const matchesMerchant = !merchantValue || merchant.includes(merchantValue);
-  
-            row.style.display = matchesType && matchesMerchant ? "" : "none";
-          }
-        };
-  
-        // attach listeners
-        typeFilter.addEventListener("input", applyFilters);
-        merchantFilter.addEventListener("input", applyFilters);
-  
-        // apply initial filter (optional)
-        applyFilters();
-  
-        // store references on element so cleanup can access them (or capture in closure)
-        typeFilter._dtHandler = applyFilters;
-        merchantFilter._dtHandler = applyFilters;
-      }
-    } catch (err) {
-      console.error("DataTable init failed:", err);
-    }
-  
-    // Cleanup on unmount
-    return () => {
-      try {
-        // remove event listeners if added
-        const tf = document.querySelector("#typeFilter");
-        const mf = document.querySelector("#merchantFilter");
-        if (tf && tf._dtHandler) tf.removeEventListener("input", tf._dtHandler);
-        if (mf && mf._dtHandler) mf.removeEventListener("input", mf._dtHandler);
-  
-        // destroy datatable
-        if (tableEl && tableEl.dataTable) {
-          tableEl.dataTable.destroy();
-          tableEl.dataTable = null;
-        }
-      } catch (err) {
-        console.warn("Cleanup destroy failed:", err);
-      }
-    };
-  }, [data]);
-  
+const Table = ({
+  data,
+  page,
+  limit,
+  totalItems,
+  totalPages,
+  loading,
+  onViewSettlements,
+  onPageChange,
+  onLimitChange,
+}) => {
   return(
     <div className="row">
         
@@ -261,23 +315,32 @@ const Table = ({ data, handleDelete }) => {
           <div className="card">
             <div className="card-body">
               <h5 className="card-title">Payment</h5>
-              <div className="mb-3 d-flex gap-3">
-              <input
-                id="merchantFilter"
-                type="text"
-                placeholder="Filter by Merchant"
-                className="form-control"
-                style={{ maxWidth: "250px" }}
-              />
-              <input
-                id="typeFilter"
-                type="text"
-                placeholder="Filter by Type"
-                className="form-control"
-                style={{ maxWidth: "200px" }}
-              />
-            </div>
-              <table className="table table-bordered datatable">
+              <div className="mb-3 d-flex justify-content-between align-items-center">
+                <div>
+                  Showing {data.length} of {totalItems} records
+                </div>
+                <div className="d-flex align-items-center gap-2">
+                  <label htmlFor="pageLimit" className="mb-0">Rows</label>
+                  <select
+                    id="pageLimit"
+                    className="form-select form-select-sm"
+                    style={{ width: "90px" }}
+                    value={limit}
+                    onChange={(e) => onLimitChange(Number(e.target.value))}
+                  >
+                    {[10, 25, 50, 100].map((size) => (
+                      <option key={size} value={size}>{size}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+              {loading && (
+                <div className="alert alert-info py-2" role="alert">
+                  Loading payments...
+                </div>
+              )}
+              <div className="table-responsive">
+              <table className="table table-bordered">
                 <thead>
                   <tr>
                     <th scope="col">#</th>
@@ -288,6 +351,7 @@ const Table = ({ data, handleDelete }) => {
                     <th scope="col">Amount</th>
                     <th scope="col">Settled Amount</th>
                     <th scope="col">Unsettled Amount</th>
+                    <th scope="col" style={{textAlign:'center'}}>Action</th>
                     {/* <th scope="col">Opening</th>
                     <th scope="col">Debit</th>
                     <th scope="col">Credit</th>
@@ -301,37 +365,57 @@ const Table = ({ data, handleDelete }) => {
                     {
                     data.map((item,index)=>
                     <tr key={index}>
-                    <th scope="row">{index+1}</th>
+                    <th scope="row">{(page - 1) * limit + index + 1}</th>
                     <td>{formatDate(item.date)}</td>
                     <td>{item.oil_type}</td>
-                    <td>{item.Merchant.name}</td>
+                    <td>{item.Merchant?.name}</td>
                     <td>{item.description}</td>
                     <td>{item.amount}</td>
                     <td>{item.settled_amount}</td>
                     <td>{item.unsettled_amount}</td>
-                    {/* <td>{item.opening}</td>
-                    <td>{item.debit}</td>
-                    <td>{item.credit}</td>
-                    <td>{item.closing}</td>
-                    <td>{item.description}</td> */}
-                    {/* <td style={{textAlign:'center'}}><Link to={"/update-balance-sarsoo/"+item.id} type="button" className="btn btn-success rounded-pill btn-sm" style={{fontSize:'10px'}}>Update</Link> <button
-                      onClick={() => handleDelete(item.id)}
-                      type="button"
-                      className="btn btn-danger rounded-pill btn-sm"
-                      style={{ fontSize: '10px' }}
-                    >
-                      Delete
-                    </button></td> */}
-                    
-                    
-                    {/* <td style={{textAlign:'center'}}><Link to={"/merchant/"+item.id} type="button" className="btn btn-success rounded-pill btn-sm" style={{fontSize:'10px'}}>Update</Link><Link onClick={()=>deleteMerchant(item.id)} to="/merchants" type="button" className="btn btn-danger rounded-pill btn-sm" style={{fontSize:'10px',marginLeft:'2px'}}>Delete</Link> </td> */}
+                    <td style={{ textAlign: "center" }}>
+                      <button
+                        type="button"
+                        className="btn btn-outline-primary btn-sm"
+                        onClick={() => onViewSettlements(item.id)}
+                      >
+                        <i className="fas fa-eye me-1"></i>
+                        View
+                      </button>
+                    </td>
                   </tr>
                     )}
-                  
-                  
+                  {(!loading && data.length === 0) && (
+                    <tr>
+                      <td colSpan="8" style={{ textAlign: "center" }}>No data found</td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
-
+              </div>
+              <div className="d-flex justify-content-between align-items-center mt-3">
+                <div>
+                  Page {page} of {Math.max(totalPages, 1)}
+                </div>
+                <div className="d-flex gap-2">
+                  <button
+                    type="button"
+                    className="btn btn-outline-secondary btn-sm"
+                    onClick={() => onPageChange(Math.max(1, page - 1))}
+                    disabled={page <= 1 || loading}
+                  >
+                    Previous
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-outline-secondary btn-sm"
+                    onClick={() => onPageChange(Math.min(totalPages, page + 1))}
+                    disabled={page >= totalPages || loading}
+                  >
+                    Next
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
 
