@@ -68,3 +68,25 @@
     transform: translateX(0);
   }
 }
+
+/* Sidebar submenu animation */
+.submenu {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: max-height 0.3s ease, opacity 0.3s ease;
+}
+
+.submenu.show {
+  max-height: 400px;
+  opacity: 1;
+}
+
+.submenu li {
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.submenu.show li {
+  transform: translateY(0);
+  opacity: 1;
+}

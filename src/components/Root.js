@@ -7,6 +7,13 @@ import UpdateMerchant from "./UpdateMerchant";
 import AddMerchant from "./AddMerchant";
 import InvoiceList from "./InvoiceList";
 import AddInvoice from "./AddInvoice";
+import AddKhalliDeal from "./AddKhalliDeal";
+import AddKhalliInvoice from "./AddKhalliInvoice";
+import KhalliDealList from "./KhalliDealList";
+import AddKhalliPayment from "./AddKhalliPayment";
+import KhalliInvoiceList from "./KhalliInvoiceList";
+import KhalliPaymentList from "./KhalliPaymentList";
+import KhalliLedgerList from "./KhalliLedgerList";
 import UpdateBalanceSarsoo from "./UpdateBalanceSarsoo";
 import PaymentList from "./PaymentList";
 import AddPayment from "./AddPayment";
@@ -22,6 +29,7 @@ function Dashboard(){
   // console.log(token);
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
+  const [khalliMenuOpen, setKhalliMenuOpen] = useState(false);
   // const [isAuthenticated, setIsAuthenticated] = useState(false);
   const handleBar = () =>{
     const body = document.body;
@@ -255,6 +263,47 @@ if (loading) {
       </Link>
   </li>
 
+  <li className="nav-item">
+    <a
+      href="#khalliSubMenu"
+      className={`nav-link ${khalliMenuOpen ? "" : "collapsed"}`}
+      onClick={(e) => {
+        e.preventDefault();
+        setKhalliMenuOpen(!khalliMenuOpen);
+      }}
+    >
+      <i className="bi bi-basket3"></i>
+      <span>Khalli</span>
+      <i className={`bi ${khalliMenuOpen ? "bi-chevron-down" : "bi-chevron-right"} ms-auto`}></i>
+    </a>
+    <ul className={`submenu nav-content ${khalliMenuOpen ? "show" : ""}`} id="khalliSubMenu">
+      <li>
+        <Link to="/khalli-deal-list" className="nav-link collapsed">
+          <i className="bi bi-circle"></i>
+          <span>Deals</span>
+        </Link>
+      </li>
+      <li>
+        <Link to="/khalli-invoice-list" className="nav-link collapsed">
+          <i className="bi bi-circle"></i>
+          <span>Invoices</span>
+        </Link>
+      </li>
+      <li>
+        <Link to="/khalli-payment-list" className="nav-link collapsed">
+          <i className="bi bi-circle"></i>
+          <span>Payments</span>
+        </Link>
+      </li>
+      <li>
+        <Link to="/khalli-ledger-list" className="nav-link collapsed">
+          <i className="bi bi-circle"></i>
+          <span>Ledger</span>
+        </Link>
+      </li>
+    </ul>
+  </li>
+
 </ul>
 
 </aside>
@@ -267,6 +316,13 @@ if (loading) {
       <Route path='/merchant/:id' element={<UpdateMerchant/>} />
       <Route path='/invoice-list' element={<InvoiceList/>} />
       <Route path='/add-invoice' element={<AddInvoice />} />
+      <Route path='/khalli-deal-list' element={<KhalliDealList />} />
+      <Route path='/add-khalli-deal' element={<AddKhalliDeal />} />
+      <Route path='/khalli-invoice-list' element={<KhalliInvoiceList />} />
+      <Route path='/khalli-payment-list' element={<KhalliPaymentList />} />
+      <Route path='/khalli-ledger-list' element={<KhalliLedgerList />} />
+      <Route path='/add-khalli-invoice/:id' element={<AddKhalliInvoice />} />
+      <Route path='/add-khalli-payment' element={<AddKhalliPayment />} />
       <Route path='/payment-list' element={<PaymentList/>} />
       <Route path='/add-payment' element={<AddPayment />} />
       <Route path='/ledger-list' element={<LedgerList/>} />
